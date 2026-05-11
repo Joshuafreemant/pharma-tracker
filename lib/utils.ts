@@ -39,7 +39,7 @@ const sendResetEmail = async (email: string, resetToken: string) => {
     from: FROM,
     to: email,
     subject: "Password Reset",
-    text: `Click the following link to reset your password:\n\nhttps://bodijaibkolcics.org.ng/reset/${resetToken}\n\nThis link expires in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`,
+    text: `Click the following link to reset your password:\n\nhttps://pharma-tracker-five.vercel.app/reset/${resetToken}\n\nThis link expires in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`,
   };
 
   try {

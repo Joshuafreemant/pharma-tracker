@@ -1121,7 +1121,7 @@ export default function KpiPage() {
           <p className="text-sm font-medium">Select one or more months above</p>
         </div>
       ) : loading ? (
-        <div className="text-center py-20 text-gray-300">
+        <div className="text-center py-20 text-gray-300 flex flex-col items-center gap-3">
           <FiLoader className="animate-spin text-4xl block mb-3" />
           <p className="text-sm">Loading…</p>
         </div>
