@@ -197,7 +197,7 @@ export function DoctorsComponent() {
 
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
+          <div className="mt-16">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Doctors</h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">
               Manage your medical contacts and relationships
@@ -271,7 +271,7 @@ export function DoctorsComponent() {
               <p className="text-sm text-gray-500">Loading doctors...</p>
             </div>
           ) : doctors.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 flex flex-col items-center gap-2">
               <FaStethoscope className="text-5xl mb-3 block" />
               <p className="font-medium">No doctors found</p>
               <p className="text-sm mt-1">Add your first medical contact to get started</p>

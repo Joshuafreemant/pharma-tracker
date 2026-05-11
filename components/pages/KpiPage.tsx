@@ -1040,7 +1040,7 @@ export default function KpiPage() {
   <div className="w-full ">
       {/* ── Page header ── */}
       <div className="flex items-center justify-between mb-8">
-        <div>
+        <div className="mt-16">
           <h1 className="text-2xl font-bold text-gray-900">KPI Tracker</h1>
           <p className="text-sm text-gray-400 mt-0.5">Monthly performance scorecard</p>
         </div>

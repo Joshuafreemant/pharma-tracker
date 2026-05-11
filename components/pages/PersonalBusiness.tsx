@@ -609,7 +609,7 @@ export function PersonalBusinessComponent({
     <div className="flex-1 overflow-y-auto">
       <div className="p-3 md:p-6">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 mt-16">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Personal Business
           </h1>

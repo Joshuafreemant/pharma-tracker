@@ -381,7 +381,7 @@ export function DistributorDealsComponent({
       <div className="p-3 md:p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
+          <div className="mt-16">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Distributor Deals</h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">Split payment transactions</p>
           </div>
@@ -406,7 +406,7 @@ export function DistributorDealsComponent({
           <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4">Active Deals</h2>
 
           {distribDeals.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 flex flex-col items-center gap-2">
               <FaStore className="text-4xl mb-2" />
               <p>No deals recorded yet</p>
             </div>

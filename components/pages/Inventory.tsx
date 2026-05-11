@@ -244,7 +244,7 @@ export function Inventory({ products, setProducts, modal, setModal }: InventoryP
 
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
+          <div className="mt-16">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Inventory</h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">
               Manage products and stock levels
@@ -309,7 +309,7 @@ export function Inventory({ products, setProducts, modal, setModal }: InventoryP
               <p className="text-sm">Loading products...</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 flex flex-col items-center gap-2">
               <LucidePackageCheck className="text-4xl mb-2 block" />
               <p>No products found</p>
               <button
