@@ -1,8 +1,8 @@
+// app/(auth)/reset-password/page.tsx
 import ResetPasswordForm from "@/components/pages/ResetPasswordForm";
 import { Suspense } from "react";
 
 
-// app/(auth)/reset-password/page.tsx
 
 
 export default function ResetPasswordPage() {
