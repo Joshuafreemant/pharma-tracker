@@ -73,7 +73,8 @@ export async function GET(req: Request) {
       .sort({ saleDate: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate("productId", "name price unitPrice");
+      .populate("productId", "name price unitPrice")
+      .populate("customerId", "name phone");
 
     const total = await PersonalSaleModel.countDocuments(query);
 

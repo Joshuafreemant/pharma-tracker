@@ -24,6 +24,7 @@ interface PersonalPurchase {
 interface PersonalSale {
   _id?: string;
   productId: any;
+  customerId: any;
   buyer: string;
   buyerType: "pharmacy" | "hospital";
   qty: number;
@@ -758,7 +759,7 @@ export function PersonalBusinessComponent({
                             {getProductName(sale)}
                           </p>
                           <p className="text-xs text-gray-600 flex items-center gap-1">
-                            {sale.buyer}
+                            {sale.customerId?.name || sale.buyer || "Unknown Buyer"} ·{" "}
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                               {sale.buyerType}
                             </span>
