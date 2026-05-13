@@ -532,6 +532,25 @@ export function PersonalBusinessComponent({
     }
   };
 
+  const handleDeleteSale = async (saleId: string) => {
+    if (!saleId) return;
+    if (!confirm("Delete this sale record? This cannot be undone.")) return;
+
+    try {
+      const response = await fetch(`/api/personal-sales/${saleId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+      setPersonalSales(personalSales.filter((s) => s._id !== saleId));
+      toast.success("Sale deleted");
+    } catch {
+      toast.error("Failed to delete sale");
+    }
+  };
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   const getProductName = (item: PersonalPurchase | PersonalSale) => {
@@ -551,8 +570,6 @@ export function PersonalBusinessComponent({
         p.name.toLowerCase().includes(searchSaleProduct.toLowerCase()),
       )
     : products;
-
- 
 
   // ── Render ────────────────────────────────────────────────────────────────
   // Add after existing state declarations
@@ -655,7 +672,8 @@ export function PersonalBusinessComponent({
                 onClick={() => setModal("personal_purchase")}
                 className="bg-purple-600 text-white px-3 py-1 rounded-lg text-xs md:text-sm hover:bg-purple-700 flex items-center gap-1"
               >
-                < FaPlusCircle className="text-sm" />Buy
+                <FaPlusCircle className="text-sm" />
+                Buy
               </button>
             </div>
 
@@ -732,7 +750,8 @@ export function PersonalBusinessComponent({
                 onClick={() => setModal("personal_sale")}
                 className="bg-teal-600 text-white px-3 py-1 rounded-lg text-xs md:text-sm hover:bg-teal-700 flex items-center gap-1"
               >
-                <FaPlusCircle className="text-sm" />Sell
+                <FaPlusCircle className="text-sm" />
+                Sell
               </button>
             </div>
 
@@ -746,33 +765,67 @@ export function PersonalBusinessComponent({
                   {personalSales.map((sale) => (
                     <div
                       key={sale._id}
-                      className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                      className={`border rounded-lg p-3 transition-colors ${
                         sale.paid
                           ? "border-green-200 bg-green-50"
                           : "border-orange-200 bg-orange-50"
                       }`}
-                      onClick={() => toggleSalePaid(sale._id as string)}
                     >
                       <div className="flex justify-between items-start mb-1">
-                        <div>
+                        <div
+                          className="flex-1 cursor-pointer"
+                          onClick={() => toggleSalePaid(sale._id as string)}
+                        >
                           <p className="font-medium text-sm text-gray-900">
                             {getProductName(sale)}
                           </p>
                           <p className="text-xs text-gray-600 flex items-center gap-1">
-                            {sale.customerId?.name || sale.buyer || "Unknown Buyer"} ·{" "}
+                            {sale.customerId?.name ||
+                              sale.buyer ||
+                              "Unknown Buyer"}{" "}
+                            ·{" "}
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                               {sale.buyerType}
                             </span>
                           </p>
                         </div>
-                        <Badge variant={sale.paid ? "success" : "warning"}>
-                          {sale.paid ? "Paid" : "Pending"}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={sale.paid ? "success" : "warning"}>
+                            {sale.paid ? "Paid" : "Pending"}
+                          </Badge>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSale(sale._id as string);
+                            }}
+                            className="text-red-400 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"
+                            title="Delete sale"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p
+                        className="text-sm font-semibold text-gray-900 cursor-pointer"
+                        onClick={() => toggleSalePaid(sale._id as string)}
+                      >
                         ₦{sale.total.toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p
+                        className="text-xs text-gray-500 mt-0.5 cursor-pointer"
+                        onClick={() => toggleSalePaid(sale._id as string)}
+                      >
                         {new Date(sale.saleDate).toLocaleDateString()} ·{" "}
                         {sale.qty} carton{sale.qty !== 1 ? "s" : ""}
                       </p>
@@ -826,7 +879,8 @@ export function PersonalBusinessComponent({
                   onClick={() => setShowAddProduct(!showAddProduct)}
                   className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                 >
-                  <FaPlusCircle className="mr-1" />Add New Product
+                  <FaPlusCircle className="mr-1" />
+                  Add New Product
                 </button>
               </div>
               {/* Replace <AddProductForm /> with the inlined JSX in both modals */}
@@ -1111,7 +1165,8 @@ export function PersonalBusinessComponent({
                   onClick={() => setShowAddProduct(!showAddProduct)}
                   className="text-teal-600 hover:text-teal-800 text-sm font-medium flex items-center gap-1"
                 >
-                  <FaPlusCircle className="mr-1" />Add New Product
+                  <FaPlusCircle className="mr-1" />
+                  Add New Product
                 </button>
               </div>
               {/* Replace <AddProductForm /> with the inlined JSX in both modals */}
