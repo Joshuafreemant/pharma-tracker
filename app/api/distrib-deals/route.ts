@@ -90,7 +90,7 @@ export async function GET(req: Request) {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("productId", "name price")
-      .populate("distributorId", "name phone");
+      .populate("distributorId", "name phone").lean();
 
     const total = await DistribDealModel.countDocuments(query);
 

@@ -163,7 +163,7 @@ export function AppContainer() {
           />
         )}
 
-        {page === "institutional" && (
+        {/* {page === "institutional" && (
           <InstitutionalComponent
             // @ts-ignore
             institutional={institutional}
@@ -173,7 +173,19 @@ export function AppContainer() {
             setProducts={setProducts}
             setModal={setModal}
           />
-        )}
+        )} */}
+        {page === "institutional" && (
+  <InstitutionalComponent
+    // @ts-ignore
+    institutional={institutional}
+    // @ts-ignore
+    setInstitutional={setInstitutional}
+    products={products}
+    setProducts={setProducts}
+    modal={modal}      
+    setModal={setModal}
+  />
+)}
 
         {page === "personal" && (
           <PersonalBusinessComponent

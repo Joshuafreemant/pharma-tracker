@@ -129,6 +129,15 @@ export function PersonalBusinessComponent({
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [searchSaleCustomer, setSearchSaleCustomer] = useState("");
 
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+  });
+  const [isSavingCustomer, setIsSavingCustomer] = useState(false);
+
   const PAGE_SIZE = 20;
 
   // ── Derived stats ─────────────────────────────────────────────────────────
@@ -551,6 +560,35 @@ export function PersonalBusinessComponent({
       toast.error("Failed to delete sale");
     }
   };
+
+  const handleAddCustomer = async () => {
+    if (!newCustomer.name.trim() || !newCustomer.phone.trim()) {
+      toast.error("Name and phone number are required");
+      return;
+    }
+    setIsSavingCustomer(true);
+    try {
+      const response = await fetch("/api/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCustomer),
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+      setCustomers((prev) => [...prev, data.data]);
+      setSaleForm((prev) => ({ ...prev, customerId: data.data._id }));
+      setNewCustomer({ name: "", phone: "", email: "", address: "" });
+      setShowAddCustomer(false);
+      toast.success(data.message || "Customer added successfully");
+    } catch {
+      toast.error("Failed to save customer");
+    } finally {
+      setIsSavingCustomer(false);
+    }
+  };
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   const getProductName = (item: PersonalPurchase | PersonalSale) => {
@@ -877,7 +915,7 @@ export function PersonalBusinessComponent({
                 <button
                   type="button"
                   onClick={() => setShowAddProduct(!showAddProduct)}
-                  className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                  className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
                 >
                   <FaPlusCircle className="mr-1" />
                   Add New Product
@@ -1078,16 +1116,21 @@ export function PersonalBusinessComponent({
                 </span>
               </label>
               <input
-                type="number"
-                value={purchaseForm.price || ""}
-                onChange={(e) =>
+                type="text"
+                value={
+                  purchaseForm.price
+                    ? purchaseForm.price.toLocaleString("en-NG")
+                    : ""
+                }
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/,/g, "");
                   setPurchaseForm({
                     ...purchaseForm,
-                    price: parseFloat(e.target.value) || 0,
-                  })
-                }
-                min="0"
-                step="0.01"
+                    price: parseFloat(raw) || 0,
+                  });
+                }}
+                placeholder="0"
+                inputMode="decimal"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
               />
             </div>
@@ -1335,11 +1378,101 @@ export function PersonalBusinessComponent({
               </select>
             </div>
 
-            {/* Customer — replaces the Buyer Name text input */}
+            {/* Customer section — in sale modal */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Customer
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Customer
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCustomer(!showAddCustomer)}
+                  className="text-teal-600 hover:text-teal-800 text-sm font-medium flex items-center gap-1"
+                >
+                  <FaPlusCircle className="mr-1" />
+                  Add New Customer
+                </button>
+              </div>
+
+              {showAddCustomer && (
+                <div className="mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">
+                    New Customer Details
+                  </h4>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      placeholder="Customer Name *"
+                      value={newCustomer.name}
+                      onChange={(e) =>
+                        setNewCustomer({ ...newCustomer, name: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Phone Number *"
+                      value={newCustomer.phone}
+                      onChange={(e) =>
+                        setNewCustomer({
+                          ...newCustomer,
+                          phone: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email (optional)"
+                      value={newCustomer.email}
+                      onChange={(e) =>
+                        setNewCustomer({
+                          ...newCustomer,
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                    <textarea
+                      placeholder="Address (optional)"
+                      value={newCustomer.address}
+                      onChange={(e) =>
+                        setNewCustomer({
+                          ...newCustomer,
+                          address: e.target.value,
+                        })
+                      }
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewCustomer({
+                            name: "",
+                            phone: "",
+                            email: "",
+                            address: "",
+                          })
+                        }
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddCustomer}
+                        disabled={isSavingCustomer}
+                        className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                      >
+                        {isSavingCustomer ? "Saving..." : "Save Customer"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <input
                 type="text"
                 placeholder="Search customers..."

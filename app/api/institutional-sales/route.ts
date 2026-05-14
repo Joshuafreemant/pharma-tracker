@@ -86,7 +86,7 @@ export async function GET(req: Request) {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("productId", "name price")
-      .populate("institutionId", "name phone");
+      .populate("institutionId", "name phone").lean();
 
     const total = await InstitutionalSaleModel.countDocuments(query);
 

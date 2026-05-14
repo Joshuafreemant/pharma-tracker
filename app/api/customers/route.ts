@@ -4,14 +4,14 @@ import CustomerModel from "@/app/models/CustomerModel";
 
 export async function POST(req: Request) {
   const data = await req.json();
-  
+
   if (!data.name || !data.phone) {
     return Response.json({ error: "Name and phone are required" }, { status: 400 });
   }
 
   try {
     await dbConnect();
-    
+
     const customer = await CustomerModel.create({
       name: data.name,
       phone: data.phone,
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
 
   try {
     await dbConnect();
-    
+
     let query = {};
     if (search) {
       query = {
@@ -50,11 +50,11 @@ export async function GET(req: Request) {
     const customers = await CustomerModel.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit).lean();
 
     const total = await CustomerModel.countDocuments(query);
 
-    return Response.json({ 
+    return Response.json({
       data: customers,
       pagination: {
         total,

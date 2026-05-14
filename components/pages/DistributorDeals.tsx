@@ -24,7 +24,7 @@ interface DistribDeal {
   balancePaid: boolean;
   saleDate: string | Date;
   productName?: string;
-  distributor?: string;  
+  distributor?: string;
 }
 
 interface DistribDealForm {
@@ -38,7 +38,7 @@ interface DistribDealForm {
 
 interface DistributorDealsProps {
   distribDeals: DistribDeal[];
-  setDistribDeals: any;  
+  setDistribDeals: any;
   products: Product[];
   setProducts: (products: Product[]) => void;
   modal: ModalKey;
@@ -103,7 +103,10 @@ export function DistributorDealsComponent({
   // ── Derived stats ─────────────────────────────────────────────────────────
 
   const totalDeals = distribDeals.reduce((sum, d) => sum + d.total, 0);
-  const paidUpfront = distribDeals.reduce((sum, d) => sum + d.upfrontPayment, 0);
+  const paidUpfront = distribDeals.reduce(
+    (sum, d) => sum + d.upfrontPayment,
+    0,
+  );
   const balancePending = distribDeals
     .filter((d) => !d.balancePaid)
     .reduce((sum, d) => sum + d.balancePayment, 0);
@@ -114,10 +117,13 @@ export function DistributorDealsComponent({
     setIsLoadingDeals(true);
     try {
       const response = await fetch(
-        `/api/distrib-deals?page=${page}&limit=${PAGE_SIZE}`
+        `/api/distrib-deals?page=${page}&limit=${PAGE_SIZE}`,
       );
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
 
       const deals = (data.data || []).map((d: any) => ({
         ...d,
@@ -135,7 +141,9 @@ export function DistributorDealsComponent({
     }
   };
 
-  useEffect(() => { fetchDeals(1); }, []);
+  useEffect(() => {
+    fetchDeals(1);
+  }, []);
 
   useEffect(() => {
     if (modal === "new_deal") {
@@ -169,7 +177,10 @@ export function DistributorDealsComponent({
 
       const response = await fetch(`/api/customers?${params}`);
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
       setDistributors(data.data);
     } catch {
       toast.error("Failed to load distributors");
@@ -187,7 +198,10 @@ export function DistributorDealsComponent({
 
       const response = await fetch(`/api/products?${params}`);
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
       setProducts(data.data);
     } catch {
       toast.error("Failed to load products");
@@ -225,7 +239,10 @@ export function DistributorDealsComponent({
         body: JSON.stringify(newDistributor),
       });
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
 
       setDistributors((prev) => [...prev, data.data]);
       setForm((prev) => ({ ...prev, distributorId: data.data._id }));
@@ -242,7 +259,11 @@ export function DistributorDealsComponent({
   // ── Add new product ───────────────────────────────────────────────────────
 
   const handleAddProduct = async () => {
-    if (!newProduct.name.trim() || !newProduct.unitPrice || !newProduct.cartonQty) {
+    if (
+      !newProduct.name.trim() ||
+      !newProduct.unitPrice ||
+      !newProduct.cartonQty
+    ) {
       toast.error("Name, price, and carton quantity are required");
       return;
     }
@@ -255,18 +276,30 @@ export function DistributorDealsComponent({
           name: newProduct.name.trim(),
           category: newProduct.category || "General",
           unitPrice: Number(newProduct.unitPrice),
-          instPrice: Number(newProduct.instPrice) || Number(newProduct.unitPrice),
+          instPrice:
+            Number(newProduct.instPrice) || Number(newProduct.unitPrice),
           cartonQty: Number(newProduct.cartonQty),
           stock: Number(newProduct.stock) || 0,
           expiryDate: newProduct.expiryDate || null,
         }),
       });
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
 
       setProducts([...products, data.data]);
       setForm((prev) => ({ ...prev, productId: data.data._id }));
-      setNewProduct({ name: "", category: "", unitPrice: "", instPrice: "", cartonQty: "", stock: "0", expiryDate: "" });
+      setNewProduct({
+        name: "",
+        category: "",
+        unitPrice: "",
+        instPrice: "",
+        cartonQty: "",
+        stock: "0",
+        expiryDate: "",
+      });
       setShowAddProduct(false);
       toast.success(data.message || "Product added successfully");
     } catch {
@@ -281,15 +314,36 @@ export function DistributorDealsComponent({
   const handleAddDeal = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.productId) { toast.error("Please select a product"); return; }
-    if (!form.distributorId) { toast.error("Please select a distributor"); return; }
-    if (form.qty <= 0) { toast.error("Quantity must be greater than 0"); return; }
-    if (!form.price || form.price <= 0) { toast.error("Price must be greater than 0"); return; }
-    if (form.upfrontPayment < 0) { toast.error("Upfront payment cannot be negative"); return; }
-    if (form.upfrontPayment > form.price) { toast.error("Upfront payment cannot exceed total price"); return; }
+    if (!form.productId) {
+      toast.error("Please select a product");
+      return;
+    }
+    if (!form.distributorId) {
+      toast.error("Please select a distributor");
+      return;
+    }
+    if (form.qty <= 0) {
+      toast.error("Quantity must be greater than 0");
+      return;
+    }
+    if (!form.price || form.price <= 0) {
+      toast.error("Price must be greater than 0");
+      return;
+    }
+    if (form.upfrontPayment < 0) {
+      toast.error("Upfront payment cannot be negative");
+      return;
+    }
+    if (form.upfrontPayment > form.price) {
+      toast.error("Upfront payment cannot exceed total price");
+      return;
+    }
 
     const product = products.find((p) => p._id === form.productId);
-    if (!product) { toast.error("Product not found"); return; }
+    if (!product) {
+      toast.error("Product not found");
+      return;
+    }
     if (form.qty > product.stock) {
       toast.error(`Insufficient stock. Available: ${product.stock}`);
       return;
@@ -303,7 +357,10 @@ export function DistributorDealsComponent({
         body: JSON.stringify(form),
       });
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
 
       const newDeal: DistribDeal = {
         ...data.data,
@@ -316,11 +373,18 @@ export function DistributorDealsComponent({
       // Update product stock locally
       setProducts(
         products.map((p) =>
-          p._id === product._id ? { ...p, stock: p.stock - form.qty } : p
-        )
+          p._id === product._id ? { ...p, stock: p.stock - form.qty } : p,
+        ),
       );
 
-      setForm({ productId: "", distributorId: "", qty: 0, price: 0, upfrontPayment: 0, saleDate: "" });
+      setForm({
+        productId: "",
+        distributorId: "",
+        qty: 0,
+        price: 0,
+        upfrontPayment: 0,
+        saleDate: "",
+      });
       setModal(null);
       toast.success(data.message || "Deal created successfully");
     } catch {
@@ -333,18 +397,33 @@ export function DistributorDealsComponent({
   // ── Toggle balance ────────────────────────────────────────────────────────
 
   const toggleBalance = async (dealId: string) => {
-    if (!dealId) { toast.error("Invalid deal ID"); return; }
+    if (!dealId) {
+      toast.error("Invalid deal ID");
+      return;
+    }
     try {
-      const response = await fetch(`/api/distrib-deals/${dealId}/toggle-balance`, {
-        method: "PATCH",
-      });
+      const response = await fetch(
+        `/api/distrib-deals/${dealId}/toggle-balance`,
+        {
+          method: "PATCH",
+        },
+      );
       const data = await response.json();
-      if (data.error) { toast.error(data.error); return; }
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
 
       setDistribDeals(
         distribDeals.map((d) =>
-          d._id === dealId ? { ...d, balancePaid: data.data.balancePaid, updatedAt: data.data.updatedAt } : d
-        )
+          d._id === dealId
+            ? {
+                ...d,
+                balancePaid: data.data.balancePaid,
+                updatedAt: data.data.updatedAt,
+              }
+            : d,
+        ),
       );
       toast.success(data.message || "Balance status updated");
     } catch {
@@ -363,14 +442,16 @@ export function DistributorDealsComponent({
   const getDistributorName = (deal: DistribDeal) => {
     if (deal.distributor) return deal.distributor;
     if (typeof deal.distributorId === "object") return deal.distributorId?.name;
-    return distributors.find((d) => d._id === deal.distributorId)?.name || "Unknown";
+    return (
+      distributors.find((d) => d._id === deal.distributorId)?.name || "Unknown"
+    );
   };
 
   const filteredProducts = searchProduct
     ? products.filter(
         (p) =>
           p.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
-          p.category?.toLowerCase().includes(searchProduct.toLowerCase())
+          p.category?.toLowerCase().includes(searchProduct.toLowerCase()),
       )
     : products;
 
@@ -382,8 +463,12 @@ export function DistributorDealsComponent({
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <div className="mt-16">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Distributor Deals</h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">Split payment transactions</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Distributor Deals
+            </h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">
+              Split payment transactions
+            </p>
           </div>
           <button
             onClick={() => setModal("new_deal")}
@@ -396,14 +481,28 @@ export function DistributorDealsComponent({
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
-          <StatCard label="Total Deals" value={formatCurrency(totalDeals)} color="blue" />
-          <StatCard label="Upfront Paid" value={formatCurrency(paidUpfront)} color="green" />
-          <StatCard label="Balance Pending" value={formatCurrency(balancePending)} color="red" />
+          <StatCard
+            label="Total Deals"
+            value={formatCurrency(totalDeals)}
+            color="blue"
+          />
+          <StatCard
+            label="Upfront Paid"
+            value={formatCurrency(paidUpfront)}
+            color="green"
+          />
+          <StatCard
+            label="Balance Pending"
+            value={formatCurrency(balancePending)}
+            color="red"
+          />
         </div>
 
         {/* Deals list */}
         <Card>
-          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4">Active Deals</h2>
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4">
+            Active Deals
+          </h2>
 
           {distribDeals.length === 0 ? (
             <div className="text-center py-8 text-gray-500 flex flex-col items-center gap-2">
@@ -415,11 +514,18 @@ export function DistributorDealsComponent({
               {/* Mobile */}
               <div className="md:hidden space-y-3">
                 {distribDeals.map((deal) => (
-                  <div key={deal._id} className="border border-gray-200 rounded-lg p-3">
+                  <div
+                    key={deal._id}
+                    className="border border-gray-200 rounded-lg p-3"
+                  >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium text-sm text-gray-900">{getProductName(deal)}</p>
-                        <p className="text-xs text-gray-600">{getDistributorName(deal)}</p>
+                        <p className="font-medium text-sm text-gray-900">
+                          {getProductName(deal)}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {getDistributorName(deal)}
+                        </p>
                       </div>
                       <Badge variant={deal.balancePaid ? "success" : "warning"}>
                         {deal.balancePaid ? "Completed" : "Pending"}
@@ -446,31 +552,63 @@ export function DistributorDealsComponent({
                 <table className="w-full text-sm">
                   <thead className="border-b border-gray-200">
                     <tr>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Product</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Distributor</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Qty</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Upfront</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Balance</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Total</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Date</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Action</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                        Product
+                      </th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                        Distributor
+                      </th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-700">
+                        Qty
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Upfront
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Balance
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Total
+                      </th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-700">
+                        Date
+                      </th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-700">
+                        Status
+                      </th>
+                      <th className="text-center py-3 px-4 font-semibold text-gray-700">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {distribDeals.map((deal) => (
                       <tr key={deal._id}>
-                        <td className="py-3 px-4 text-gray-900">{getProductName(deal)}</td>
-                        <td className="py-3 px-4 text-gray-600">{getDistributorName(deal)}</td>
-                        <td className="py-3 px-4 text-center text-gray-900">{deal.qty}</td>
-                        <td className="py-3 px-4 text-right text-green-600">₦{deal.upfrontPayment.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-right text-orange-600">₦{deal.balancePayment.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-right font-medium text-gray-900">₦{deal.total.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-gray-900">
+                          {getProductName(deal)}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {getDistributorName(deal)}
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-900">
+                          {deal.qty}
+                        </td>
+                        <td className="py-3 px-4 text-right text-green-600">
+                          ₦{deal.upfrontPayment.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 text-right text-orange-600">
+                          ₦{deal.balancePayment.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 text-right font-medium text-gray-900">
+                          ₦{deal.total.toLocaleString()}
+                        </td>
                         <td className="py-3 px-4 text-center text-gray-600">
                           {new Date(deal.saleDate).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <Badge variant={deal.balancePaid ? "success" : "warning"}>
+                          <Badge
+                            variant={deal.balancePaid ? "success" : "warning"}
+                          >
                             {deal.balancePaid ? "Complete" : "Pending"}
                           </Badge>
                         </td>
@@ -494,7 +632,9 @@ export function DistributorDealsComponent({
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-600">Page {currentPage} of {totalPages}</p>
+            <p className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </p>
             <div className="flex gap-2">
               <button
                 onClick={() => fetchDeals(currentPage - 1)}
@@ -515,35 +655,54 @@ export function DistributorDealsComponent({
         )}
 
         {/* ── Modal ─────────────────────────────────────────────────────────── */}
-        <Modal isOpen={modal === "new_deal"} onClose={() => setModal(null)} title="New Distributor Deal">
+        <Modal
+          isOpen={modal === "new_deal"}
+          onClose={() => setModal(null)}
+          title="New Distributor Deal"
+        >
           <form onSubmit={handleAddDeal} className="space-y-4" noValidate>
-
             {/* Product Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-700">Product</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Product
+                </label>
                 <button
                   type="button"
-                  onClick={() => { setShowAddProduct(!showAddProduct); setShowAddDistributor(false); }}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  onClick={() => {
+                    setShowAddProduct(!showAddProduct);
+                    setShowAddDistributor(false);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                 >
-                  <FaPlusCircle className="mr-1" />Add New Product
+                  <FaPlusCircle className="mr-1" />
+                  Add New Product
                 </button>
               </div>
 
               {showAddProduct && (
                 <div className="mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">New Product Details</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">
+                    New Product Details
+                  </h4>
                   <div className="space-y-2">
                     <input
-                      type="text" placeholder="Product Name *"
+                      type="text"
+                      placeholder="Product Name *"
                       value={newProduct.name}
-                      onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                      onChange={(e) =>
+                        setNewProduct({ ...newProduct, name: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <select
                       value={newProduct.category}
-                      onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          category: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select category...</option>
@@ -558,62 +717,120 @@ export function DistributorDealsComponent({
                       <option value="Other">Other</option>
                     </select>
                     <div className="grid grid-cols-2 gap-2">
-                      <input type="number" placeholder="Unit Price (₦) *"
+                      <input
+                        type="number"
+                        placeholder="Unit Price (₦) *"
                         value={newProduct.unitPrice}
-                        onChange={(e) => setNewProduct({ ...newProduct, unitPrice: e.target.value })}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            unitPrice: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <input type="number" placeholder="Inst. Price (₦)"
+                      <input
+                        type="number"
+                        placeholder="Inst. Price (₦)"
                         value={newProduct.instPrice}
-                        onChange={(e) => setNewProduct({ ...newProduct, instPrice: e.target.value })}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            instPrice: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <input type="number" placeholder="Units/Carton *"
+                      <input
+                        type="number"
+                        placeholder="Units/Carton *"
                         value={newProduct.cartonQty}
-                        onChange={(e) => setNewProduct({ ...newProduct, cartonQty: e.target.value })}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            cartonQty: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <input type="number" placeholder="Initial Stock"
+                      <input
+                        type="number"
+                        placeholder="Initial Stock"
                         value={newProduct.stock}
-                        onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            stock: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <input type="date"
+                    <input
+                      type="date"
                       value={newProduct.expiryDate}
-                      onChange={(e) => setNewProduct({ ...newProduct, expiryDate: e.target.value })}
+                      onChange={(e) =>
+                        setNewProduct({
+                          ...newProduct,
+                          expiryDate: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="flex gap-2">
-                      <button type="button"
-                        onClick={() => setNewProduct({ name: "", category: "", unitPrice: "", instPrice: "", cartonQty: "", stock: "0", expiryDate: "" })}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewProduct({
+                            name: "",
+                            category: "",
+                            unitPrice: "",
+                            instPrice: "",
+                            cartonQty: "",
+                            stock: "0",
+                            expiryDate: "",
+                          })
+                        }
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-                      >Clear</button>
-                      <button type="button" onClick={handleAddProduct} disabled={isSavingProduct}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddProduct}
+                        disabled={isSavingProduct}
                         className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-                      >{isSavingProduct ? "Saving..." : "Save Product"}</button>
+                      >
+                        {isSavingProduct ? "Saving..." : "Save Product"}
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
 
               <input
-                type="text" placeholder="Search products..."
+                type="text"
+                placeholder="Search products..."
                 value={searchProduct}
                 onChange={(e) => setSearchProduct(e.target.value)}
                 className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <select
                 value={form.productId}
-                onChange={(e) => setForm({ ...form, productId: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, productId: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
                 <option value="">Select product...</option>
                 {filteredProducts.map((p) => (
                   <option key={p._id} value={p._id}>
-                    {p.name} (₦{p.price?.toLocaleString() || p.unitPrice?.toLocaleString()} — {p.stock} in stock)
+                    {p.name} (₦
+                    {p.price?.toLocaleString() ||
+                      p.unitPrice?.toLocaleString()}{" "}
+                    — {p.stock} in stock)
                   </option>
                 ))}
               </select>
@@ -622,56 +839,107 @@ export function DistributorDealsComponent({
             {/* Distributor Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-700">Distributor</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Distributor
+                </label>
                 <button
                   type="button"
-                  onClick={() => { setShowAddDistributor(!showAddDistributor); setShowAddProduct(false); }}
+                  onClick={() => {
+                    setShowAddDistributor(!showAddDistributor);
+                    setShowAddProduct(false);
+                  }}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                 >
-                  <FaPlusCircle className="mr-1" />Add New Distributor
+                  <FaPlusCircle className="mr-1" />
+                  Add New Distributor
                 </button>
               </div>
 
               {showAddDistributor && (
                 <div className="mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">New Distributor Details</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">
+                    New Distributor Details
+                  </h4>
                   <div className="space-y-2">
-                    <input type="text" placeholder="Distributor Name *"
+                    <input
+                      type="text"
+                      placeholder="Distributor Name *"
                       value={newDistributor.name}
-                      onChange={(e) => setNewDistributor({ ...newDistributor, name: e.target.value })}
+                      onChange={(e) =>
+                        setNewDistributor({
+                          ...newDistributor,
+                          name: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <input type="text" placeholder="Phone Number *"
+                    <input
+                      type="text"
+                      placeholder="Phone Number *"
                       value={newDistributor.phone}
-                      onChange={(e) => setNewDistributor({ ...newDistributor, phone: e.target.value })}
+                      onChange={(e) =>
+                        setNewDistributor({
+                          ...newDistributor,
+                          phone: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <input type="email" placeholder="Email (optional)"
+                    <input
+                      type="email"
+                      placeholder="Email (optional)"
                       value={newDistributor.email}
-                      onChange={(e) => setNewDistributor({ ...newDistributor, email: e.target.value })}
+                      onChange={(e) =>
+                        setNewDistributor({
+                          ...newDistributor,
+                          email: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <textarea placeholder="Address (optional)"
+                    <textarea
+                      placeholder="Address (optional)"
                       value={newDistributor.address}
-                      onChange={(e) => setNewDistributor({ ...newDistributor, address: e.target.value })}
+                      onChange={(e) =>
+                        setNewDistributor({
+                          ...newDistributor,
+                          address: e.target.value,
+                        })
+                      }
                       rows={2}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="flex gap-2">
-                      <button type="button"
-                        onClick={() => setNewDistributor({ name: "", phone: "", email: "", address: "" })}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewDistributor({
+                            name: "",
+                            phone: "",
+                            email: "",
+                            address: "",
+                          })
+                        }
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-                      >Clear</button>
-                      <button type="button" onClick={handleAddDistributor} disabled={isSavingDistributor}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddDistributor}
+                        disabled={isSavingDistributor}
                         className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-                      >{isSavingDistributor ? "Saving..." : "Save Distributor"}</button>
+                      >
+                        {isSavingDistributor ? "Saving..." : "Save Distributor"}
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
 
               <input
-                type="text" placeholder="Search distributors..."
+                type="text"
+                placeholder="Search distributors..."
                 value={searchDistributor}
                 onChange={(e) => setSearchDistributor(e.target.value)}
                 className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -679,12 +947,16 @@ export function DistributorDealsComponent({
               <div className="relative">
                 <select
                   value={form.distributorId}
-                  onChange={(e) => setForm({ ...form, distributorId: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, distributorId: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
                   <option value="">Select distributor...</option>
                   {distributors.map((d) => (
-                    <option key={d._id} value={d._id}>{d.name} ({d.phone})</option>
+                    <option key={d._id} value={d._id}>
+                      {d.name} ({d.phone})
+                    </option>
                   ))}
                 </select>
                 {isLoadingDistributors && (
@@ -697,17 +969,24 @@ export function DistributorDealsComponent({
 
             {/* Quantity */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Quantity (Cartons)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantity (Cartons)
+              </label>
               <input
                 type="number"
                 value={form.qty || ""}
-                onChange={(e) => setForm({ ...form, qty: parseFloat(e.target.value) || 0 })}
-                min="0.1" step="0.1"
+                onChange={(e) =>
+                  setForm({ ...form, qty: parseFloat(e.target.value) || 0 })
+                }
+                min="0.1"
+                step="0.1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
               {form.productId && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Available: {products.find((p) => p._id === form.productId)?.stock || 0} cartons
+                  Available:{" "}
+                  {products.find((p) => p._id === form.productId)?.stock || 0}{" "}
+                  cartons
                 </p>
               )}
             </div>
@@ -715,37 +994,62 @@ export function DistributorDealsComponent({
             {/* Total Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Total Price (₦) <span className="text-xs text-gray-400 font-normal">auto-calculated, editable</span>
+                Total Price (₦){" "}
+                <span className="text-xs text-gray-400 font-normal">
+                  auto-calculated, editable
+                </span>
               </label>
               <input
-                type="number"
-                value={form.price || ""}
-                onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
-                min="0" step="0.01"
+                type="text"
+                value={form.price ? form.price.toLocaleString("en-NG") : ""}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/,/g, "");
+                  setForm({ ...form, price: parseFloat(raw) || 0 });
+                }}
+                placeholder="0"
+                inputMode="decimal"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
 
             {/* Upfront Payment */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Upfront Payment (₦)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upfront Payment (₦)
+              </label>
+              
               <input
-                type="number"
-                value={form.upfrontPayment || ""}
-                onChange={(e) => setForm({ ...form, upfrontPayment: parseFloat(e.target.value) || 0 })}
-                min="0" step="0.01"
+                type="text"
+                value={
+                  form.upfrontPayment
+                    ? form.upfrontPayment.toLocaleString("en-NG")
+                    : ""
+                }
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/,/g, "");
+                  setForm({ ...form, upfrontPayment: parseFloat(raw) || 0 });
+                }}
+                placeholder="0"
+                inputMode="decimal"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
+             
               {form.price > 0 && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Balance due: ₦{Math.max(0, form.price - form.upfrontPayment).toLocaleString()}
+                  Balance due: ₦
+                  {Math.max(
+                    0,
+                    form.price - form.upfrontPayment,
+                  ).toLocaleString()}
                 </p>
               )}
             </div>
 
             {/* Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Deal Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Deal Date
+              </label>
               <input
                 type="date"
                 value={form.saleDate || new Date().toISOString().split("T")[0]}
@@ -757,25 +1061,50 @@ export function DistributorDealsComponent({
             {/* Summary */}
             {form.productId && form.qty > 0 && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="text-sm font-medium text-blue-900 mb-2">Deal Summary</h4>
-                <p className="text-sm text-blue-900">Product: {products.find((p) => p._id === form.productId)?.name}</p>
-                <p className="text-sm text-blue-900">Distributor: {distributors.find((d) => d._id === form.distributorId)?.name || "Not selected"}</p>
-                <p className="text-sm text-blue-900">Upfront: ₦{form.upfrontPayment.toLocaleString()}</p>
-                <p className="text-sm text-blue-900">Balance: ₦{Math.max(0, form.price - form.upfrontPayment).toLocaleString()}</p>
-                <p className="text-sm font-semibold text-blue-900 mt-1">Total: ₦{form.price.toLocaleString()}</p>
+                <h4 className="text-sm font-medium text-blue-900 mb-2">
+                  Deal Summary
+                </h4>
+                <p className="text-sm text-blue-900">
+                  Product:{" "}
+                  {products.find((p) => p._id === form.productId)?.name}
+                </p>
+                <p className="text-sm text-blue-900">
+                  Distributor:{" "}
+                  {distributors.find((d) => d._id === form.distributorId)
+                    ?.name || "Not selected"}
+                </p>
+                <p className="text-sm text-blue-900">
+                  Upfront: ₦{form.upfrontPayment.toLocaleString()}
+                </p>
+                <p className="text-sm text-blue-900">
+                  Balance: ₦
+                  {Math.max(
+                    0,
+                    form.price - form.upfrontPayment,
+                  ).toLocaleString()}
+                </p>
+                <p className="text-sm font-semibold text-blue-900 mt-1">
+                  Total: ₦{form.price.toLocaleString()}
+                </p>
               </div>
             )}
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
               <button
-                type="button" onClick={() => setModal(null)}
+                type="button"
+                onClick={() => setModal(null)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-              >Cancel</button>
+              >
+                Cancel
+              </button>
               <button
-                type="submit" disabled={isSubmitting}
+                type="submit"
+                disabled={isSubmitting}
                 className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-              >{isSubmitting ? "Creating Deal..." : "Create Deal"}</button>
+              >
+                {isSubmitting ? "Creating Deal..." : "Create Deal"}
+              </button>
             </div>
           </form>
         </Modal>
